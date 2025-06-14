@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import prisma from "../utils/prisma";
+import prisma from "../lib/prisma";
 
 export const addUser = async (
   req: Request,
