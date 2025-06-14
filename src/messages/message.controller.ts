@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { getReceiverSocketId, io } from "../utils/socket";
-import prisma from "../utils/prisma";
+import prisma from "../lib/prisma";
 
 export const sendMessage = async (
   req: Request,
