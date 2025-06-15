@@ -3,11 +3,17 @@ import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { errorHandler } from "../utils/error";
 import prisma from "../lib/prisma";
 import { User } from "@prisma/client";
+type AuthenticatedUser = {
+  id: string;
+  username: string;
+  email: string;
+};
+
 
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: AuthenticatedUser
     }
   }
 }

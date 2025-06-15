@@ -1,34 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "../lib/prisma";
-
-export const addUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { username } = req.body;
-
-  if (!username) {
-    res.status(400).json({ error: "Username is required" });
-    return;
-  }
-
-  try {
-    const user = await prisma.user.create({
-      data: { username },
-    });
-
-    res.status(201).json(user);
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      // Prisma unique constraint failed
-      res.status(409).json({ error: "Username already exists" });
-    } else {
-      console.error("Failed to add user:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  }
-};
+import { errorHandler } from "../utils/error";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken";
+import bcrypt from "bcrypt";
 
 export const getUsers = async (
   req: Request,
@@ -44,7 +18,48 @@ export const getUsers = async (
 
     res.status(200).json(users);
   } catch (error) {
-    console.error("Failed to get users:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return next(errorHandler(500, "Failed to fetch users"));
   }
 }
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(errorHandler(400, "Email and password are required"));
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return next(errorHandler(401, "Invalid email or password"));
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return next(errorHandler(401, "Invalid email or password"));
+    }
+
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
+
+    res.status(200).json({
+      status: 200,
+      message: "Login successful",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    return next(errorHandler(500, "Login failed"));
+  }
+};
