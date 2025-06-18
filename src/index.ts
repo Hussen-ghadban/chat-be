@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
-import messageRoutes from "./messages/message.routes";
-import userRouter from "./users/user.routes";
+import messageRoutes from "./features/messages/message.routes";
+import userRouter from "./features/users/user.routes";
 import { app, server } from "./utils/socket";
 
 dotenv.config();

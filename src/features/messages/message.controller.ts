@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { getReceiverSocketId, io } from "../utils/socket";
-import prisma from "../lib/prisma";
+import { getReceiverSocketId, io } from "../../utils/socket";
+import prisma from "../../lib/prisma";
 
 export const sendMessage = async (
   req: Request,
@@ -18,8 +18,8 @@ export const sendMessage = async (
     const message = await prisma.message.create({
       data: {
         content,
-        senderId: Number(senderId),
-        receiverId: Number(receiverId),
+        senderId: senderId,
+        receiverId: receiverId,
       },
     });
 
@@ -34,7 +34,6 @@ export const sendMessage = async (
     res.status(500).json({ error: "Failed to send message" });
   }
 };
-
 export const getMessages = async (
   req: Request,
   res: Response,
@@ -47,17 +46,20 @@ export const getMessages = async (
     return;
   }
 
+  const senderIdStr = String(senderId);
+  const receiverIdStr = String(receiverId);
+
   try {
     const messages = await prisma.message.findMany({
       where: {
         OR: [
           {
-            senderId: Number(senderId),
-            receiverId: Number(receiverId),
+            senderId: senderIdStr,
+            receiverId: receiverIdStr,
           },
           {
-            senderId: Number(receiverId),
-            receiverId: Number(senderId),
+            senderId: receiverIdStr,
+            receiverId: senderIdStr,
           },
         ],
       },
