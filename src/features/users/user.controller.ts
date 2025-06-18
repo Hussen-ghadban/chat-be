@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import prisma from "../lib/prisma";
-import { errorHandler } from "../utils/error";
-import { generateAccessToken, generateRefreshToken } from "../utils/generateToken";
+import prisma from "../../lib/prisma";
+import { errorHandler } from "../../utils/error";
+import { generateAccessToken, generateRefreshToken } from "../../utils/generateToken";
 import bcrypt from "bcrypt";
 
 export const getUsers = async (
