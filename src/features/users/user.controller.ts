@@ -12,7 +12,7 @@ export const getUsers = async (
   try {
     const users = await prisma.user.findMany({
       orderBy: {
-        username: "asc", // Optional: sort alphabetically
+        username: "asc",
       },
     });
 
@@ -60,7 +60,7 @@ export const login = async (
       refreshToken,
     });
   } catch (error) {
-    return next(errorHandler(500, "Login failed"));
+    next(errorHandler(500, "Login failed"));
   }
 };
 export const register = async (
@@ -102,6 +102,6 @@ export const register = async (
       },
     });
   } catch (error) {
-    return next(errorHandler(500, "Registration failed"));
+    return next(errorHandler(500, "Registration failed")); 
   }
 };
