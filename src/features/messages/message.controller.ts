@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getReceiverSocketId, io } from "../../utils/socket";
 import prisma from "../../lib/prisma";
+import { errorHandler } from "../../utils/error";
 
 export const sendMessage = async (
   req: Request,
@@ -31,7 +32,7 @@ export const sendMessage = async (
     res.status(201).json(message);
   } catch (error) {
     console.error("Error sending message:", error);
-    res.status(500).json({ error: "Failed to send message" });
+    next(errorHandler(500, "Failed to send message"));
   }
 };
 export const getMessages = async (
@@ -71,6 +72,6 @@ export const getMessages = async (
     res.json(messages);
   } catch (error) {
     console.error("Error fetching messages:", error);
-    res.status(500).json({ error: "Failed to fetch messages" });
+    next(errorHandler(500, "Failed to fetch messages"));
   }
 };
