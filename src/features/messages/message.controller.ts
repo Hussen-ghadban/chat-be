@@ -75,3 +75,45 @@ export const getMessages = async (
     next(errorHandler(500, "Failed to fetch messages"));
   }
 };
+
+
+export const getUserChats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    res.status(400).json({ error: "userId is required" });
+    return;
+  }
+
+  const userIdStr = String(userId);
+
+  try {
+    const chats = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderId: userIdStr },
+          { receiverId: userIdStr }
+        ]
+      },
+      select: {
+        senderId: true,
+        receiverId: true
+      }
+    });
+
+    const chatUserIds = new Set<string>();
+    chats.forEach(chat => {
+      if (chat.senderId !== userIdStr) chatUserIds.add(chat.senderId);
+      if (chat.receiverId !== userIdStr) chatUserIds.add(chat.receiverId);
+    });
+
+    res.json(Array.from(chatUserIds));
+  } catch (error) {
+    console.error("Error fetching user chats:", error);
+    next(errorHandler(500, "Failed to fetch user chats"));
+  }
+};
